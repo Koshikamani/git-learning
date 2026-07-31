@@ -6,30 +6,39 @@ pool:
 
 variables:
   azureServiceConnection: 'AzureConnection'
-  webAppName: 'mani-devops-demo-fuedcdd3cdbpc3hb'
+  webAppName: 'mani-devops-demo'
 
 steps:
 
-# Step 1 - Copy files
-- task: CopyFiles@2
-  displayName: 'Copy website files'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)'
-    Contents: '**'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+# Display repository contents
+- script: |
+    echo "Repository Files:"
+    ls -la
+  displayName: 'List Repository Files'
 
-# Step 2 - Publish artifact
+# Archive the website files
+- task: ArchiveFiles@2
+  displayName: 'Create Deployment Package'
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/website.zip'
+    replaceExistingArchive: true
+
+# Publish the artifact
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Website Artifact'
+  displayName: 'Publish Build Artifact'
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/website.zip'
     ArtifactName: 'Website'
+    publishLocation: 'Container'
 
-# Step 3 - Deploy to Azure App Service
+# Deploy to Azure App Service
 - task: AzureWebApp@1
-  displayName: 'Deploy Website'
+  displayName: 'Deploy to Azure App Service'
   inputs:
     azureSubscription: '$(azureServiceConnection)'
     appType: 'webAppLinux'
     appName: '$(webAppName)'
-    package: '$(Build.ArtifactStagingDirectory)'
+    package: '$(Build.ArtifactStagingDirectory)/website.zip'
