@@ -5,15 +5,22 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo "Hello Azure DevOps!"
-  displayName: "Print Welcome Message"
 
 - script: |
-    echo "Running on:"
-    uname -a
-  displayName: "Show Operating System"
-
-- script: |
-    echo "Listing Repository Files"
+    echo "Listing repository"
     ls -la
-  displayName: "List Files"
+  displayName: "View Files"
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: "Copy Files"
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'Website'
+    publishLocation: 'Container'
+  displayName: "Publish Artifact"
