@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 variables:
   azureServiceConnection: 'AzureConnection'
@@ -10,33 +10,17 @@ variables:
 
 steps:
 
-# Display repository contents
-- script: |
-    echo "Repository Files:"
-    ls -la
-  displayName: 'List Repository Files'
-
-# Archive the website files
 - task: ArchiveFiles@2
-  displayName: 'Create Deployment Package'
+  displayName: 'Archive Website'
   inputs:
     rootFolderOrFile: '$(Build.SourcesDirectory)'
     includeRootFolder: false
-    archiveType: 'zip'
+    archiveType: zip
     archiveFile: '$(Build.ArtifactStagingDirectory)/website.zip'
     replaceExistingArchive: true
 
-# Publish the artifact
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Build Artifact'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/website.zip'
-    ArtifactName: 'Website'
-    publishLocation: 'Container'
-
-# Deploy to Azure App Service
 - task: AzureWebApp@1
-  displayName: 'Deploy to Azure App Service'
+  displayName: 'Deploy Website'
   inputs:
     azureSubscription: '$(azureServiceConnection)'
     appType: 'webAppLinux'
