@@ -1,0 +1,19 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo "Hello Azure DevOps!"
+  displayName: "Print Welcome Message"
+
+- script: |
+    echo "Running on:"
+    uname -a
+  displayName: "Show Operating System"
+
+- script: |
+    echo "Listing Repository Files"
+    ls -la
+  displayName: "List Files"
