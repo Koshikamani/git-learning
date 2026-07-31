@@ -2,25 +2,34 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureServiceConnection: 'AzureConnection'
+  webAppName: 'mani-devops-demo-fuedcdd3cdbpc3hb'
 
 steps:
 
-- script: |
-    echo "Listing repository"
-    ls -la
-  displayName: "View Files"
-
+# Step 1 - Copy files
 - task: CopyFiles@2
+  displayName: 'Copy website files'
   inputs:
     SourceFolder: '$(Build.SourcesDirectory)'
     Contents: '**'
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
-  displayName: "Copy Files"
 
+# Step 2 - Publish artifact
 - task: PublishBuildArtifacts@1
+  displayName: 'Publish Website Artifact'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'Website'
-    publishLocation: 'Container'
-  displayName: "Publish Artifact"
+
+# Step 3 - Deploy to Azure App Service
+- task: AzureWebApp@1
+  displayName: 'Deploy Website'
+  inputs:
+    azureSubscription: '$(azureServiceConnection)'
+    appType: 'webAppLinux'
+    appName: '$(webAppName)'
+    package: '$(Build.ArtifactStagingDirectory)'
