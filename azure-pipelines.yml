@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 variables:
   azureServiceConnection: 'AzureConnection'
@@ -10,17 +10,30 @@ variables:
 
 steps:
 
+# Install Node.js
+- task: NodeTool@0
+  inputs:
+    versionSpec: '24.x'
+  displayName: 'Install Node.js'
+
+# Install dependencies
+- script: |
+    npm install
+  displayName: 'Install npm packages'
+
+# Archive application
 - task: ArchiveFiles@2
-  displayName: 'Archive Website'
   inputs:
     rootFolderOrFile: '$(Build.SourcesDirectory)'
     includeRootFolder: false
     archiveType: zip
     archiveFile: '$(Build.ArtifactStagingDirectory)/website.zip'
     replaceExistingArchive: true
+  displayName: 'Create Deployment Package'
 
+# Deploy
 - task: AzureWebApp@1
-  displayName: 'Deploy Website'
+  displayName: 'Deploy to Azure App Service'
   inputs:
     azureSubscription: '$(azureServiceConnection)'
     appType: 'webAppLinux'
