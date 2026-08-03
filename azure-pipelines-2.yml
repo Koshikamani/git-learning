@@ -1,0 +1,31 @@
+trigger:
+- main
+
+pool:
+  name: Default      # Change if your agent pool has a different name
+
+steps:
+
+- checkout: self
+
+- powershell: |
+    Write-Host "Current Directory:"
+    Get-Location
+
+    Write-Host "Installing dependencies..."
+    npm install
+
+    Write-Host "Stopping old application..."
+    pm2 delete MyNodeApp
+  continueOnError: true
+  displayName: "Install Dependencies"
+
+- powershell: |
+    Write-Host "Starting Application..."
+    pm2 start server.js --name MyNodeApp
+
+    Write-Host "Saving PM2..."
+    pm2 save
+
+    pm2 list
+  displayName: "Start Application"
