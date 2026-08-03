@@ -2,30 +2,50 @@ trigger:
 - main
 
 pool:
-  name: Default      # Change if your agent pool has a different name
+  name: Default    # Change if your Agent Pool has a different name
 
 steps:
 
+# Checkout latest code
 - checkout: self
+  clean: true
 
+# Verify what was downloaded
 - powershell: |
-    Write-Host "Current Directory:"
+    Write-Host "========== USER =========="
+    whoami
+
+    Write-Host ""
+    Write-Host "========== WORKING DIRECTORY =========="
     Get-Location
 
-    Write-Host "Installing dependencies..."
-    npm install
+    Write-Host ""
+    Write-Host "========== LATEST COMMIT =========="
+    git rev-parse HEAD
+    git log --oneline -1
 
-    Write-Host "Stopping old application..."
-    pm2 delete MyNodeApp
-  continueOnError: true
+    Write-Host ""
+    Write-Host "========== FILES =========="
+    Get-ChildItem
+
+    Write-Host ""
+    Write-Host "========== INDEX.HTML =========="
+    Get-Content index.html
+  displayName: "Verify Checked Out Code"
+
+# Install dependencies
+- powershell: |
+    npm install
   displayName: "Install Dependencies"
 
+# Restart application
 - powershell: |
-    Write-Host "Starting Application..."
+    pm2 delete MyNodeApp
+  continueOnError: true
+  displayName: "Stop Existing App"
+
+- powershell: |
     pm2 start server.js --name MyNodeApp
-
-    Write-Host "Saving PM2..."
     pm2 save
-
     pm2 list
   displayName: "Start Application"
