@@ -1,0 +1,16 @@
+trigger:
+- main
+
+pool:
+  name: Default    # Change this if your agent pool has a different name
+
+steps:
+- powershell: |
+    Write-Host "Hello from my Azure VM!"
+    hostname
+    whoami
+    Get-Location
+    node -v
+    npm -v
+    git --version
+  displayName: "Verify Self-Hosted Agent"
